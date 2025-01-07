@@ -5,11 +5,15 @@ import { motion } from "framer-motion"; // Animation library for React
 const WatchPage = () => {
   const [tournaments, setTournaments] = useState([]);
   const [selectedTournament, setSelectedTournament] = useState(null);
+  const [results, setResults] = useState({});
 
+  // Fetch tournaments from Firebase
   useEffect(() => {
     const db = getDatabase();
     const tournamentsRef = ref(db, "tournaments/");
+    const resultsRef = ref(db, "results/");
 
+    // Fetch tournaments
     onValue(tournamentsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -20,19 +24,25 @@ const WatchPage = () => {
         setTournaments(formattedTournaments);
       }
     });
+
+    // Fetch results
+    onValue(resultsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setResults(data);
+      }
+    });
   }, []);
 
+  // Handle tournament selection
   const handleTournamentChange = (event) => {
     const tournamentId = event.target.value;
     const tournament = tournaments.find((t) => t.id === tournamentId);
     setSelectedTournament(tournament);
   };
 
-  const calculatePointsTable = (teams, matches = []) => {
-    if (!Array.isArray(matches)) {
-      matches = Object.values(matches || {}); // Convert to array if it's an object
-    }
-
+  // Calculate points table with results data
+  const calculatePointsTable = (teams, tournamentId) => {
     const pointsTable = teams.map((team) => ({
       name: team.name,
       played: 0,
@@ -42,33 +52,41 @@ const WatchPage = () => {
       points: 0,
     }));
 
-    matches.forEach((match) => {
-      const teamA = pointsTable.find((t) => t.name === match.teamA);
-      const teamB = pointsTable.find((t) => t.name === match.teamB);
+    const tournamentResults = results[tournamentId];
+    if (tournamentResults) {
+      const matches = Object.values(tournamentResults);
 
-      if (!teamA || !teamB) return; // Skip if team data is missing
+      matches.forEach((match) => {
+        if (match.status === "completed") {
+          const teamA = pointsTable.find((t) => t.name === match.teamA);
+          const teamB = pointsTable.find((t) => t.name === match.teamB);
 
-      if (match.status === "Completed") {
-        teamA.played++;
-        teamB.played++;
-        if (match.winner === match.teamA) {
-          teamA.won++;
-          teamB.lost++;
-          teamA.points += 3;
-        } else if (match.winner === match.teamB) {
-          teamB.won++;
-          teamA.lost++;
-          teamB.points += 3;
+          if (!teamA || !teamB) return;
+
+          // Update match stats
+          teamA.played++;
+          teamB.played++;
+
+          if (match.winner === match.teamA) {
+            teamA.won++;
+            teamB.lost++;
+            teamA.points += 2;
+          } else if (match.winner === match.teamB) {
+            teamB.won++;
+            teamA.lost++;
+            teamB.points += 2;
+          }
         }
-      }
-    });
+      });
+    }
 
     return pointsTable;
   };
 
+  // Get scheduled matches for the selected tournament
   const getScheduledMatches = (matches) => {
     if (!Array.isArray(matches)) {
-      matches = Object.values(matches || {}); // Convert to array if it's an object
+      matches = Object.values(matches || {});
     }
     return matches.filter((match) => match.status === "Scheduled");
   };
@@ -127,7 +145,7 @@ const WatchPage = () => {
             <tbody>
               {calculatePointsTable(
                 selectedTournament.teams,
-                selectedTournament.matches || []
+                selectedTournament.id
               ).map((team, index) => (
                 <tr key={index} style={index % 2 === 0 ? styles.evenRow : styles.oddRow}>
                   <td>{team.name}</td>
@@ -167,6 +185,7 @@ const styles = {
     boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
     fontFamily: "'Poppins', sans-serif",
   },
+  
   heading: {
     textAlign: "center",
     fontSize: "40px",

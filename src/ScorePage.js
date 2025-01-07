@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import CricketScorePage from "./CricketScorePage";
-import { getDatabase, ref, onValue, update } from "firebase/database";
+import { getDatabase, ref, onValue, update, push } from "firebase/database";
 
 const ScorePage = () => {
   const { tournamentId } = useParams();
@@ -62,6 +62,12 @@ const ScorePage = () => {
   const handleStartMatch = (match) => {
     const db = getDatabase();
     const matchRef = ref(db, `tournaments/${tournamentId}/matches/${match.id}`);
+    
+    // Check if match already has an ID
+    if (!match.id) {
+      const newMatchRef = push(ref(db, `tournaments/${tournamentId}/matches`)); // Generate a new match ID if it doesn't exist
+      match.id = newMatchRef.key;  // Assign the new match ID
+    }
 
     update(matchRef, { status: "Live" })
       .then(() => {

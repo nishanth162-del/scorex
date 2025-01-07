@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getDatabase, ref, update, set } from "firebase/database";
 
 const CricketScorePage = ({ matchDetails }) => {
@@ -10,6 +10,7 @@ const CricketScorePage = ({ matchDetails }) => {
   const [teamBatting, setTeamBatting] = useState(matchDetails?.teamA || "Team A");
   const [inningsEnded, setInningsEnded] = useState(false);
   const [firstInningScore, setFirstInningScore] = useState(null);
+  const [matchEnded, setMatchEnded] = useState(false);  // Flag to track if match has ended
 
   const db = getDatabase();
 
@@ -151,26 +152,28 @@ const CricketScorePage = ({ matchDetails }) => {
     });
   };
 
-  // End the match and declare the result
+  // End the match, compare scores, and update results
   const handleEndMatch = () => {
     const tournamentId = matchDetails?.tournamentId;
     const liveMatchRef = ref(db, `liveMatches/${matchDetails.id}`);
     const completedMatchRef = ref(db, `tournaments/${tournamentId}/completedMatches/${matchDetails.id}`);
-  
+    const resultsRef = ref(db, `results/${tournamentId}/${matchDetails.id}`);
+
     if (!tournamentId) {
       alert("Tournament ID is missing. Please check your setup.");
       return;
     }
-  
+
     const teamAScore = firstInningScore?.runs || 0;
     const teamBScore = runs;
+
     const winner =
       teamAScore > teamBScore
         ? matchDetails?.teamA
         : teamBScore > teamAScore
         ? matchDetails?.teamB
         : "Tie";
-  
+
     const resultsData = {
       teamA: matchDetails?.teamA,
       teamB: matchDetails?.teamB,
@@ -178,18 +181,29 @@ const CricketScorePage = ({ matchDetails }) => {
       secondInning: { runs, wickets, overs, balls },
       winner,
       status: "completed", // Indicating the match has ended
+      timestamp: Date.now(),
     };
-  
-    // Save results to the 'completedMatches' section
-    set(completedMatchRef, resultsData)
+
+    // Save match result to 'results' collection
+    set(resultsRef, resultsData)
       .then(() => {
         alert(`Match has ended! Winner: ${winner}`);
+        updatePointsTable(winner, teamAScore, teamBScore);
       })
       .catch((error) => {
         console.error("Error saving completed match data:", error);
         alert("Failed to archive match data. Please try again.");
       });
-  
+
+    // Save results to the completed match section
+    set(completedMatchRef, resultsData)
+      .then(() => {
+        console.log("Match completed data saved.");
+      })
+      .catch((error) => {
+        console.error("Error saving completed match data:", error);
+      });
+
     // Remove the live match data
     set(liveMatchRef, null)
       .then(() => {
@@ -197,11 +211,36 @@ const CricketScorePage = ({ matchDetails }) => {
       })
       .catch((error) => {
         console.error("Error removing live match data:", error);
-        alert("Failed to remove live match data. Please try again.");
       });
-  
+
     // Optionally reset the score for future matches
     resetScore();
+    setMatchEnded(true);
+  };
+
+  // Update points table based on winner
+  const updatePointsTable = (winner, teamAScore, teamBScore) => {
+    const tournamentId = matchDetails?.tournamentId;
+    const pointsRef = ref(db, `tournaments/${tournamentId}/pointsTable`);
+
+    const pointsData = {
+      [matchDetails?.teamA]: {
+        points: winner === matchDetails?.teamA ? 2 : 0,
+        runs: teamAScore,
+      },
+      [matchDetails?.teamB]: {
+        points: winner === matchDetails?.teamB ? 2 : 0,
+        runs: teamBScore,
+      },
+    };
+
+    update(pointsRef, pointsData)
+      .then(() => {
+        console.log("Points table updated.");
+      })
+      .catch((error) => {
+        console.error("Error updating points table:", error);
+      });
   };
 
   // Reset the score for the next inning or match
@@ -240,7 +279,7 @@ const CricketScorePage = ({ matchDetails }) => {
           End Innings
         </button>
       )}
-      {inningsEnded && currentInning === 2 && (
+      {inningsEnded && currentInning === 2 && !matchEnded && (
         <button onClick={handleEndMatch} style={{ marginTop: "20px" }}>
           End Match
         </button>
