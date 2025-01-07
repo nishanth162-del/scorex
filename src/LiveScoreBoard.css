@@ -1,0 +1,181 @@
+/* General styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(45deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+/* Scoreboard container styles */
+.scoreboard-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Header styles */
+.scoreboard-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.scoreboard-header h2 {
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(45deg, #00ff87, #60efff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.scoreboard-header p {
+  font-size: 20px;
+  font-weight: 500;
+  color: #bbb;
+  margin-top: 5px;
+}
+
+/* Score section */
+.score-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.team-details {
+  text-align: center;
+  flex: 1;
+}
+
+.team-details h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #00ff87;
+}
+
+.team-details p {
+  font-size: 18px;
+  color: #bbb;
+}
+
+.score-details {
+  text-align: center;
+  flex: 1;
+}
+
+.score-details h1 {
+  font-size: 50px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.score-details p {
+  font-size: 18px;
+  font-weight: 500;
+  color: #bbb;
+}
+
+/* Event section styles */
+.event-section {
+  margin-top: 20px;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.event-section h4 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.event-section p {
+  font-size: 18px;
+  font-weight: 400;
+  color: #bbb;
+}
+
+/* Winner popup styles */
+.popup-message {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745; /* Green background for winner */
+  color: white;
+  padding: 20px 40px;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 10px;
+  z-index: 9999;
+  text-align: center;
+  animation: fadeInOut 4s forwards;
+}
+
+.winner-popup h2 {
+  font-size: 30px;
+}
+
+.winner-popup p {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+/* Crackers animation */
+.crackers-animation {
+  position: relative;
+  margin-top: 20px;
+}
+
+.crackers-animation::before, .crackers-animation::after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background-color: #ffdd00;
+  border-radius: 50%;
+  animation: firework 0.8s infinite alternate;
+}
+
+.crackers-animation::before {
+  left: 10%;
+  top: 30%;
+  animation-delay: 0.3s;
+}
+
+.crackers-animation::after {
+  left: 70%;
+  top: 40%;
+  animation-delay: 0.5s;
+}
+
+@keyframes firework {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Fade in and out effect */
+@keyframes fadeInOut {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

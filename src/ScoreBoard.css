@@ -1,0 +1,74 @@
+.scoreboard-container {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .scoreboard-header h2 {
+    margin: 0;
+    font-size: 1.8em;
+    font-weight: bold;
+  }
+  
+  .scoreboard-header p {
+    font-size: 1.2em;
+    margin: 5px 0 15px 0;
+    font-weight: bold;
+  }
+  
+  .score-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    color: #0072ff;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .team-details h3 {
+    margin: 0;
+    font-size: 1.5em;
+  }
+  
+  .team-details p {
+    margin: 5px 0;
+    font-size: 1em;
+    font-weight: bold;
+  }
+  
+  .score-details h1 {
+    font-size: 3em;
+    margin: 0;
+  }
+  
+  .score-details p {
+    font-size: 1.2em;
+    margin: 5px 0;
+  }
+  
+  .event-section {
+    margin-top: 20px;
+    background: #0072ff;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .event-section h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.4em;
+  }
+  
+  .event-section p {
+    margin: 0;
+    font-size: 1em;
+  }
+  
